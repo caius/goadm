@@ -19,7 +19,7 @@ user ||= "root"
 port ||= 22
 port = Integer(port)
 
-remote_command = $stdin.read
+remote_command = ARGV[4]
 
 Net::SSH.start(host, user, port: port, non_interactive: true) do |ssh|
   ssh.exec!(remote_command) do |channel, stream,
