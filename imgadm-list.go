@@ -2,9 +2,11 @@ package main
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"log"
 	"os/exec"
+	"time"
 )
 
 type Goadm struct {
@@ -33,19 +35,28 @@ func (g Goadm) Exec(command string) (string, error) {
 		log.Fatal(err)
 	}
 
-	fmt.Printf("cmd out: %q\n", out.String())
-
-	return "", nil
+	return out.String(), nil
 }
 
 type Imgadm struct {
 	goadm Goadm
 }
 
+type ImagesJSON []struct {
+	Manifest struct {
+		Uuid        string    `json:"uuid"`
+		Name        string    `json:"name"`
+		Version     string    `json:"version"`
+		PublishedAt time.Time `json:"published_at"`
+		Type        string    `json:"type"`
+		Os          string    `json:"os"`
+		Urn         string    `json:"urn"`
+	} `json:"manifest"`
+}
+
 type Image struct {
-	Uuid      string
-	Name      string
-	Installed bool
+	Uuid string `json:"uuid"`
+	Name string `json:"name"`
 }
 
 func (i Imgadm) ListImages() ([]Image, error) {
@@ -54,15 +65,21 @@ func (i Imgadm) ListImages() ([]Image, error) {
 		return nil, err
 	}
 
-	log.Printf("%s\n", result)
-
-	// return JSON.parse(result), nil
-	var images [1]Image
-	images[0] = Image{
-		Uuid: "97a044cd-10c3-4ba7-9fe4-933481e3474d",
-		Name: "debian9",
+	var parsedImages ImagesJSON
+	err = json.Unmarshal([]byte(result), &parsedImages)
+	if err != nil {
+		return nil, err
 	}
-	return images[:], nil
+
+	var images []Image
+	for _, image_j := range parsedImages {
+		images = append(images, Image{
+			Uuid: image_j.Manifest.Uuid,
+			Name: image_j.Manifest.Name,
+		})
+	}
+
+	return images, nil
 }
 
 func main() {
@@ -81,6 +98,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+
 	for _, image := range images {
 		log.Printf("%s\t%s\n", image.Uuid, image.Name)
 	}
