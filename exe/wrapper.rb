@@ -14,12 +14,12 @@ require "net/ssh"
 require "optparse"
 require "shellwords"
 
-host, user, port = ARGV.first(3)
-user ||= "root"
-port ||= 22
-port = Integer(port)
+host = ARGV.shift
+user = ARGV.shift
+port = Integer(ARGV.shift)
 
-remote_command = ARGV[4]
+ARGV.shift # "--"
+remote_command = ARGV.shift
 
 Net::SSH.start(host, user, port: port, non_interactive: true) do |ssh|
   ssh.exec!(remote_command) do |channel, stream,
