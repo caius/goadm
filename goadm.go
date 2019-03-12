@@ -27,7 +27,7 @@ func (g Client) Imgadm() (Imgadm, error) {
 }
 
 func (g Client) Exec(command string) (string, error) {
-	cmd := exec.Command("./exe/wrapper.sh", g.Host, g.User, fmt.Sprintf("%d", g.Port), "--", command)
+	cmd := exec.Command("ssh", "-p", fmt.Sprintf("%d", g.Port), fmt.Sprintf("%s@%s", g.User, g.Host), command)
 
 	var out bytes.Buffer
 	cmd.Stdout = &out
