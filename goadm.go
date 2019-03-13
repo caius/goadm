@@ -25,6 +25,10 @@ func (g Client) Imgadm() (Imgadm, error) {
 	return Imgadm{Client: g}, nil
 }
 
+func (g Client) Vmadm() (Vmadm, error) {
+	return Vmadm{Client: g}, nil
+}
+
 // @private
 func (g Client) exec(command string) ([]byte, error) {
 	cmd := exec.Command("ssh", "-p", fmt.Sprintf("%d", g.Port), fmt.Sprintf("%s@%s", g.User, g.Host), command)
