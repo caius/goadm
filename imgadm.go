@@ -22,8 +22,9 @@ type ImagesJSON []struct {
 }
 
 type Image struct {
-	Uuid string `json:"uuid"`
-	Name string `json:"name"`
+	Uuid    string
+	Name    string
+	Version string
 }
 
 func (i Imgadm) ListImages() ([]Image, error) {
@@ -39,10 +40,12 @@ func (i Imgadm) ListImages() ([]Image, error) {
 	}
 
 	var images []Image
-	for _, image_j := range parsedImages {
+	for _, json_image := range parsedImages {
+		data := json_image.Manifest
 		images = append(images, Image{
-			Uuid: image_j.Manifest.Uuid,
-			Name: image_j.Manifest.Name,
+			Uuid:    data.Uuid,
+			Name:    data.Name,
+			Version: data.Version,
 		})
 	}
 
