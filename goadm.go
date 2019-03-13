@@ -22,11 +22,11 @@ func NewClient(host string, user string, port int) Client {
 }
 
 func (g Client) Imgadm() (Imgadm, error) {
-	imgadm := Imgadm{goadm: g}
-	return imgadm, nil
+	return Imgadm{Client: g}, nil
 }
 
-func (g Client) Exec(command string) (string, error) {
+// @private
+func (g Client) exec(command string) ([]byte, error) {
 	cmd := exec.Command("ssh", "-p", fmt.Sprintf("%d", g.Port), fmt.Sprintf("%s@%s", g.User, g.Host), command)
 
 	var out bytes.Buffer
@@ -41,5 +41,5 @@ func (g Client) Exec(command string) (string, error) {
 		log.Fatal(err)
 	}
 
-	return out.String(), nil
+	return out.Bytes(), nil
 }

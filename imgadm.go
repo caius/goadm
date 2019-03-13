@@ -6,7 +6,7 @@ import (
 )
 
 type Imgadm struct {
-	goadm Client
+	Client
 }
 
 type ImagesJSON []struct {
@@ -27,7 +27,7 @@ type Image struct {
 }
 
 func (i Imgadm) ListImages() ([]Image, error) {
-	result, err := i.goadm.Exec("imgadm list -j")
+	result, err := i.exec("imgadm list --json")
 	if err != nil {
 		return nil, err
 	}

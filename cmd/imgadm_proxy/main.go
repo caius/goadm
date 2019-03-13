@@ -1,8 +1,10 @@
 package main
 
 import (
-	"github.com/caius/goadm"
+	"fmt"
 	"log"
+
+	"github.com/caius/goadm"
 )
 
 func main() {
@@ -18,7 +20,9 @@ func main() {
 		log.Fatal(err)
 	}
 
+	fmt.Printf("Found %d images\n", len(images))
+
 	for _, image := range images {
-		log.Printf("%s\t%s\n", image.Uuid, image.Name)
+		fmt.Printf("%s\t%s\n", image.Uuid, image.Name)
 	}
 }
