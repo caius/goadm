@@ -21,12 +21,12 @@ func NewClient(host string, user string, port int) Client {
 	}
 }
 
-func (g Client) Imgadm() (Imgadm, error) {
-	return Imgadm{Client: g}, nil
+func (g Client) Imgadm() Imgadm {
+	return Imgadm{Client: g}
 }
 
-func (g Client) Vmadm() (Vmadm, error) {
-	return Vmadm{Client: g}, nil
+func (g Client) Vmadm() Vmadm {
+	return Vmadm{Client: g}
 }
 
 // @private
