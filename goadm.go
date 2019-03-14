@@ -31,7 +31,14 @@ func (g Client) Vmadm() Vmadm {
 
 // @private
 func (g Client) exec(command string) ([]byte, error) {
-	cmd := exec.Command("ssh", "-p", fmt.Sprintf("%d", g.Port), fmt.Sprintf("%s@%s", g.User, g.Host), command)
+	cmd := exec.Command(
+		"ssh",
+		"-o", "UserKnownHostsFile=/dev/null",
+		"-o", "StrictHostKeyChecking=no",
+		"-p", fmt.Sprintf("%d", g.Port),
+		fmt.Sprintf("%s@%s", g.User, g.Host),
+		command,
+	)
 
 	var out bytes.Buffer
 	cmd.Stdout = &out
