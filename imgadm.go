@@ -2,6 +2,7 @@ package goadm
 
 import (
 	"encoding/json"
+	"fmt"
 	"time"
 )
 
@@ -10,6 +11,10 @@ type Imgadm struct {
 }
 
 type ImagesJSON []struct {
+	ImageJSON
+}
+
+type ImageJSON struct {
 	Manifest struct {
 		Uuid        string    `json:"uuid"`
 		Name        string    `json:"name"`
@@ -50,4 +55,26 @@ func (i Imgadm) ListImages() ([]Image, error) {
 	}
 
 	return images, nil
+}
+
+// Gets installed image
+func (i Imgadm) GetImage(uuid string) (*Image, error) {
+	result, err := i.exec(fmt.Sprintf("imgadm get %s", uuid))
+	if err != nil {
+		return nil, err
+	}
+
+	var parsedImage ImageJSON
+	err = json.Unmarshal(result, &parsedImage)
+	if err != nil {
+		return nil, err
+	}
+
+	data := parsedImage.Manifest
+	return &Image{
+		Uuid:    data.Uuid,
+		Name:    data.Name,
+		Version: data.Version,
+	}, nil
+
 }
