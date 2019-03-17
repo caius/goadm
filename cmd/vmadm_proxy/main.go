@@ -20,8 +20,22 @@ func main() {
 			Name:    "list",
 			Aliases: []string{"ls"},
 			Usage:   "List zones",
+			Flags: []cli.Flag{
+				cli.StringFlag{
+					Name:  "host",
+					Usage: "SmartOS Host to run against",
+				},
+				cli.StringFlag{
+					Name:  "user",
+					Usage: "User to login as",
+				},
+				cli.IntFlag{
+					Name:  "port",
+					Usage: "SSH Port on host",
+				},
+			},
 			Action: func(c *cli.Context) error {
-				client := goadm.NewClient("127.0.0.1", "root", 2022)
+				client := goadm.NewClient(c.String("host"), c.String("user"), c.Int("port"))
 
 				vmadm := client.Vmadm()
 				zones, err := vmadm.ListZones()
