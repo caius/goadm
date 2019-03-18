@@ -78,7 +78,8 @@ func main() {
 					return err
 				}
 
-				fmt.Printf("%s\n", zone.Uuid)
+				fmt.Printf("%s\t%s\n", "UUID", "Name")
+				fmt.Printf("%s\t%s\n", zone.Uuid, zone.Type)
 				return nil
 			},
 		},
