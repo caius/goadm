@@ -27,11 +27,24 @@ type ZoneJSON struct {
 	State             string `json:"zone_state"`
 	Uuid              string `json:"uuid"`
 	ZfsIoPriority     int    `json:"zfs_io_priority"`
+	Type              string `json:"type"`
 }
 
 type Zone struct {
-	Uuid string `json:"uuid"`
-	Name string `json:"name"`
+	Autoboot          bool
+	Brand             string
+	CpuShares         int
+	DnsDomain         string
+	ImageUuid         string
+	MaxLockedMemory   int
+	MaxLwps           int
+	MaxPhysicalMemory int
+	MaxSwap           int
+	Name              string
+	State             string
+	Type              string
+	Uuid              string
+	ZfsIoPriority     int
 }
 
 func (i Vmadm) ListZones() ([]Zone, error) {
@@ -48,26 +61,47 @@ func (i Vmadm) ListZones() ([]Zone, error) {
 
 	var zones []Zone
 	for _, parsedZone := range parsedZones {
-		zones = append(zones, Zone{
-			Uuid: parsedZone.Uuid,
-			Name: parsedZone.Name,
-		})
+		zones = append(zones, zonejsonToZone(parsedZone.ZoneJSON))
 	}
 
 	return zones, nil
 }
 
 func (i Vmadm) GetZone(uuid string) (*Zone, error) {
-	result, err := i.exec(fmt.Sprintf("vmadm get %s", uuid))
+	// Lookup always returns an array, but we want to error if more than one VM matches
+	// UUIDs *are* unique
+	result, err := i.exec(fmt.Sprintf("vmadm lookup --json -1 uuid=%s", uuid))
 	if err != nil {
 		return nil, err
 	}
 
-	var parsedZone ZoneJSON
-	err = json.Unmarshal([]byte(result), &parsedZone)
+	// Parse out the zones (there is only one)
+	var parsedZones ZonesJSON
+	err = json.Unmarshal([]byte(result), &parsedZones)
+	if err != nil {
+		return nil, err
+	}
 
-	return &Zone{
-		Uuid: parsedZone.Uuid,
-		Name: parsedZone.Name,
-	}, nil
+	// Return the one zone from the array
+	zone := zonejsonToZone(parsedZones[0].ZoneJSON)
+	return &zone, nil
+}
+
+func zonejsonToZone(data ZoneJSON) Zone {
+	return Zone{
+		Uuid:              data.Uuid,
+		Autoboot:          data.Autoboot,
+		Brand:             data.Brand,
+		CpuShares:         data.CpuShares,
+		DnsDomain:         data.DnsDomain,
+		ImageUuid:         data.ImageUuid,
+		MaxLockedMemory:   data.MaxLockedMemory,
+		MaxLwps:           data.MaxLwps,
+		MaxPhysicalMemory: data.MaxPhysicalMemory,
+		MaxSwap:           data.MaxSwap,
+		Name:              data.Name,
+		State:             data.State,
+		ZfsIoPriority:     data.ZfsIoPriority,
+		Type:              data.Type,
+	}
 }
