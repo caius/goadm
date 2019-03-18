@@ -18,18 +18,22 @@ type ImageJSON struct {
 	Manifest struct {
 		Uuid        string    `json:"uuid"`
 		Name        string    `json:"name"`
-		Version     string    `json:"version"`
+		Os          string    `json:"os"`
 		PublishedAt time.Time `json:"published_at"`
 		Type        string    `json:"type"`
-		Os          string    `json:"os"`
 		Urn         string    `json:"urn"`
+		Version     string    `json:"version"`
 	} `json:"manifest"`
 }
 
 type Image struct {
-	Uuid    string
-	Name    string
-	Version string
+	Uuid        string
+	Name        string
+	Os          string
+	PublishedAt time.Time
+	Type        string
+	Urn         string
+	Version     string
 }
 
 func (i Imgadm) ListImages() ([]Image, error) {
@@ -46,12 +50,7 @@ func (i Imgadm) ListImages() ([]Image, error) {
 
 	var images []Image
 	for _, json_image := range parsedImages {
-		data := json_image.Manifest
-		images = append(images, Image{
-			Uuid:    data.Uuid,
-			Name:    data.Name,
-			Version: data.Version,
-		})
+		images = append(images, imagejsonToImage(json_image.ImageJSON))
 	}
 
 	return images, nil
@@ -70,11 +69,18 @@ func (i Imgadm) GetImage(uuid string) (*Image, error) {
 		return nil, err
 	}
 
-	data := parsedImage.Manifest
-	return &Image{
-		Uuid:    data.Uuid,
-		Name:    data.Name,
-		Version: data.Version,
-	}, nil
+	img := imagejsonToImage(parsedImage)
+	return &img, nil
+}
 
+func imagejsonToImage(data ImageJSON) Image {
+	return Image{
+		Uuid:        data.Manifest.Uuid,
+		Name:        data.Manifest.Name,
+		Os:          data.Manifest.Os,
+		PublishedAt: data.Manifest.PublishedAt,
+		Type:        data.Manifest.Type,
+		Urn:         data.Manifest.Urn,
+		Version:     data.Manifest.Version,
+	}
 }
