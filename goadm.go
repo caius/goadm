@@ -7,6 +7,12 @@ import (
 	"os/exec"
 )
 
+type ExecResult struct {
+	ExitCode int
+	Stderr   string
+	Stdout   string
+}
+
 type Client struct {
 	Host string
 	User string
@@ -29,8 +35,7 @@ func (g Client) Vmadm() Vmadm {
 	return Vmadm{Client: g}
 }
 
-// @private
-func (g Client) exec(command string) ([]byte, error) {
+func (g Client) exec(command string) ExecResult {
 	cmd := exec.Command(
 		"ssh",
 		"-o", "UserKnownHostsFile=/dev/null",
@@ -40,17 +45,19 @@ func (g Client) exec(command string) ([]byte, error) {
 		command,
 	)
 
-	var out bytes.Buffer
-	cmd.Stdout = &out
-
-	var outerr bytes.Buffer
-	cmd.Stderr = &outerr
+	var stdout, stderr bytes.Buffer
+	cmd.Stdout = &stdout
+	cmd.Stderr = &stderr
 
 	err := cmd.Run()
 	if err != nil {
-		fmt.Printf("err out: %q\n", outerr.String())
-		log.Fatal(err)
+		log.Printf("Exec error: %s\n", err)
 	}
 
-	return out.Bytes(), nil
+	result := ExecResult{
+		Stderr: stderr.String(),
+		Stdout: stdout.String(),
+	}
+
+	return result
 }
