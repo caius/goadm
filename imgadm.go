@@ -8,6 +8,10 @@ import (
 	"time"
 )
 
+// Relevant documentation from imgadm
+//
+// Errors: https://github.com/joyent/smartos-live/blob/master/src/img/lib/errors.js
+
 type Imgadm struct {
 	Client
 }
