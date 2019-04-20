@@ -1,8 +1,8 @@
 package goadm
 
 import (
-	"encoding/json"
-	"fmt"
+// "encoding/json"
+// "fmt"
 )
 
 type Vmadm struct {
@@ -48,43 +48,45 @@ type Zone struct {
 }
 
 func (i Vmadm) ListZones() ([]Zone, error) {
-	result, err := i.exec("vmadm lookup --json")
-	if err != nil {
-		return nil, err
-	}
-
-	var parsedZones ZonesJSON
-	err = json.Unmarshal([]byte(result), &parsedZones)
-	if err != nil {
-		return nil, err
-	}
-
-	var zones []Zone
-	for _, parsedZone := range parsedZones {
-		zones = append(zones, zonejsonToZone(parsedZone.ZoneJSON))
-	}
-
-	return zones, nil
+	// result, err := i.exec("vmadm lookup --json")
+	// if err != nil {
+	//   return nil, err
+	// }
+	//
+	// var parsedZones ZonesJSON
+	// err = json.Unmarshal([]byte(result), &parsedZones)
+	// if err != nil {
+	//   return nil, err
+	// }
+	//
+	// var zones []Zone
+	// for _, parsedZone := range parsedZones {
+	//   zones = append(zones, zonejsonToZone(parsedZone.ZoneJSON))
+	// }
+	//
+	// return zones, nil
+	return nil, nil
 }
 
 func (i Vmadm) GetZone(uuid string) (*Zone, error) {
 	// Lookup always returns an array, but we want to error if more than one VM matches
 	// UUIDs *are* unique
-	result, err := i.exec(fmt.Sprintf("vmadm lookup --json -1 uuid=%s", uuid))
-	if err != nil {
-		return nil, err
-	}
-
-	// Parse out the zones (there is only one)
-	var parsedZones ZonesJSON
-	err = json.Unmarshal([]byte(result), &parsedZones)
-	if err != nil {
-		return nil, err
-	}
-
-	// Return the one zone from the array
-	zone := zonejsonToZone(parsedZones[0].ZoneJSON)
-	return &zone, nil
+	// result, err := i.exec(fmt.Sprintf("vmadm lookup --json -1 uuid=%s", uuid))
+	// if err != nil {
+	//   return nil, err
+	// }
+	//
+	// // Parse out the zones (there is only one)
+	// var parsedZones ZonesJSON
+	// err = json.Unmarshal([]byte(result), &parsedZones)
+	// if err != nil {
+	//   return nil, err
+	// }
+	//
+	// // Return the one zone from the array
+	// zone := zonejsonToZone(parsedZones[0].ZoneJSON)
+	// return &zone, nil
+	return nil, nil
 }
 
 func zonejsonToZone(data ZoneJSON) Zone {
