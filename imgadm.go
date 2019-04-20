@@ -2,7 +2,9 @@ package goadm
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
+	"log"
 	"time"
 )
 
@@ -37,15 +39,22 @@ type Image struct {
 }
 
 func (i Imgadm) ListImages() ([]Image, error) {
-	result, err := i.exec("imgadm list --json")
-	if err != nil {
-		return nil, err
+	result := i.exec("imgadm list --json")
+
+	log.Printf("GOADM ListImages result=%+v\n", result)
+
+	if result.ExitCode != 0 {
+		// Uh oh, our command failed
+		log.Printf("GOADM ListImages exec failed: %+v\n", result)
+		return nil, errors.New("Error listing images")
 	}
 
 	var parsedImages ImagesJSON
-	err = json.Unmarshal([]byte(result), &parsedImages)
+	err := json.Unmarshal([]byte(result.Stdout), &parsedImages)
 	if err != nil {
-		return nil, err
+		// Uh oh, our command failed
+		log.Printf("GOADM ListImages unmarshal failed: %+v\n", err)
+		return nil, errors.New("Error listing images")
 	}
 
 	var images []Image
@@ -58,18 +67,27 @@ func (i Imgadm) ListImages() ([]Image, error) {
 
 // Gets installed image
 func (i Imgadm) GetImage(uuid string) (*Image, error) {
-	result, err := i.exec(fmt.Sprintf("imgadm get %s", uuid))
-	if err != nil {
-		return nil, err
+	log.Printf("GOADM GetImage uuid=%s\n", uuid)
+	result := i.exec(fmt.Sprintf("imgadm get %s", uuid))
+
+	log.Printf("GOADM result=%+v\n", result)
+
+	if result.ExitCode != 0 {
+		log.Printf("GOADM GetImage exec failed: %+v\n", result)
+		// Uh oh, our command failed, assume not found for now
+		return nil, errors.New("Image not found")
 	}
 
 	var parsedImage ImageJSON
-	err = json.Unmarshal(result, &parsedImage)
+	err := json.Unmarshal([]byte(result.Stdout), &parsedImage)
 	if err != nil {
-		return nil, err
+		log.Printf("GOADM GetImage unmarshal failed: %+v\n", err)
+		// Uh oh, our command failed, assume not found for now
+		return nil, errors.New("Image not found")
 	}
 
 	img := imagejsonToImage(parsedImage)
+	log.Printf("GOADM img %+v\n", img)
 	return &img, nil
 }
 
