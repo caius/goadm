@@ -95,6 +95,22 @@ func (i Imgadm) GetImage(uuid string) (*Image, error) {
 	return &img, nil
 }
 
+// Imports an image from a source
+func (i Imgadm) ImportImage(uuid string) (*Image, error) {
+	log.Printf("GOADM ImportImage uuid=%s\n", uuid)
+
+	import_result := i.exec(fmt.Sprintf("imgadm import -q %s", uuid))
+
+	log.Printf("GOADM ImportImage result=%+v\n", import_result)
+	if import_result.ExitCode != 0 {
+		log.Printf("GOADM ImportImage failed, assume image not found")
+		return nil, errors.New("Image not found to import")
+	}
+
+	// Otherwise assume it imported fine, and return representation of it
+	return i.GetImage(uuid)
+}
+
 func imagejsonToImage(data ImageJSON) Image {
 	return Image{
 		Uuid:        data.Manifest.Uuid,
