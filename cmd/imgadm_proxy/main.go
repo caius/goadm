@@ -52,6 +52,7 @@ func main() {
 				return nil
 			},
 		},
+
 		{
 			Name:  "get",
 			Usage: "Get information on a single image",
@@ -79,6 +80,37 @@ func main() {
 				}
 
 				fmt.Printf("%s\n", image.Uuid)
+				return nil
+			},
+		},
+
+		{
+			Name:  "import",
+			Usage: "Import an image from source",
+			Flags: []cli.Flag{
+				cli.StringFlag{
+					Name:  "host",
+					Usage: "SmartOS Host to run against",
+				},
+				cli.StringFlag{
+					Name:  "user",
+					Usage: "User to login as",
+				},
+				cli.IntFlag{
+					Name:  "port",
+					Usage: "SSH Port on host",
+				},
+			},
+			Action: func(c *cli.Context) error {
+				client := goadm.NewClient(c.String("host"), c.String("user"), c.Int("port"))
+
+				imgadm := client.Imgadm()
+				image, err := imgadm.ImportImage(c.Args().Get(0))
+				if err != nil {
+					return err
+				}
+
+				fmt.Printf("Image imported %s\n", image.Uuid)
 				return nil
 			},
 		},
